@@ -5,20 +5,18 @@ then
     PROJECT_NAME="day$1"
     dotnet new sln -o $PROJECT_NAME
     cd $PROJECT_NAME
-    dotnet new classLib -lang F# -o src/Core
-    dotnet new classLib -lang F# -o src/Parser
-    dotnet new xunit -lang F# -o tests/Core.Tests
-    dotnet add tests/Core.Tests package FsUnit
-    dotnet add src/Parser package FParsec
 
-    dotnet add src/Parser/Parser.fsproj reference src/Core/Core.fsproj
-    
-    dotnet add tests/Core.Tests/Core.Tests.fsproj reference src/Core/Core.fsproj
-    dotnet add tests/Core.Tests/Core.Tests.fsproj reference src/Parser/Parser.fsproj
+    TESTS="$PROJECT_NAME.Tests"
+    dotnet new xunit -lang F# -o $TESTS
+    dotnet add $TESTS package FsUnit
+    dotnet add $TESTS package FParsec
 
-    dotnet sln add src/Core/Core.fsproj
-    dotnet sln add src/Parser/Parser.fsproj
-    dotnet sln add tests/Core.Tests/Core.Tests.fsproj
+    dotnet sln add "$TESTS/$TESTS.fsproj"
+
+    dotnet test
+
+    git add .
+    git commit -m "setup for the $PROJECT_NAME"
 else
     echo "You should give the day of the event :)"
 fi
