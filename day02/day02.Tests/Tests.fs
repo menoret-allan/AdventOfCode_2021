@@ -16,7 +16,13 @@ let parse (str: string) =
     | _ -> (0,0)
 
 let Part1 (cmd: string) =
-    let (x, y) = (cmd.Split '\n') |> Array.map parse |> Array.reduce add
+    (cmd.Split '\n') |> Array.map parse |> Array.reduce add ||> (*)
+
+let specialAdd (x, y, aim) (x1, y1) =
+    (x+x1, y + x1*aim, aim+y1)
+
+let Part2 (cmd: string) =
+    let (x, y, _) = (cmd.Split '\n') |> Array.map parse |> Array.fold specialAdd (0,0,0)
     x*y
 
 [<Fact>]
@@ -26,3 +32,11 @@ let ``Part 1 small test`` () =
 [<Fact>]
 let ``Part 1 test`` () =
     commandsBig |> Part1 |> should equal 1962940
+
+[<Fact>]
+let ``Part 2 small test`` () =
+    commandsSmall |> Part2 |> should equal 900
+
+[<Fact>]
+let ``Part 2 test`` () =
+    commandsBig |> Part2 |> should equal 1813664422
