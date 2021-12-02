@@ -8,21 +8,24 @@ open Inputs
 
 let add (x,y) (x1,y1) = (x+x1,y+y1)
 
-let parse (str: string) =
+let parseLine (str: string) =
     match str.Split ' ' with
     | [|"forward"; x|] -> (int x, 0)
     | [|"down"; x|] -> (0, int x)
     | [|"up"; x|] -> (0, -(int x))
     | _ -> (0,0)
 
-let Part1 (cmd: string) =
-    (cmd.Split '\n') |> Array.map parse |> Array.reduce add ||> (*)
+let parseCmd (cmd:string) =
+    (cmd.Split '\n') |> Array.map parseLine
+
+let Part1 cmd =
+    cmd |> parseCmd |> Array.reduce add ||> (*)
 
 let specialAdd (x, y, aim) (x1, y1) =
     (x+x1, y + x1*aim, aim+y1)
 
 let Part2 (cmd: string) =
-    let (x, y, _) = (cmd.Split '\n') |> Array.map parse |> Array.fold specialAdd (0,0,0)
+    let (x, y, _) = cmd |> parseCmd |> Array.fold specialAdd (0,0,0)
     x*y
 
 [<Fact>]
