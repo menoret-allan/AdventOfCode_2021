@@ -23,7 +23,7 @@ let calcBit (bits: int list) mult =
         | x::rest -> calcPow (x * mult) acc + f rest (acc+1)
     f bits 0
 
-let extractBits (str:string) =
+let part1 (str:string) =
     let res =
         str.Split '\n' |>
         Array.map (fun x -> Seq.toList x) |>
@@ -34,8 +34,32 @@ let extractBits (str:string) =
     let y = calcBit res -1
     (x,y)
 
-let getPower str =
-    extractBits str ||> (*)
+let rec groupAndPickMax pos arr =
+    match (Array.length arr, Array.head arr) with
+    | (1, head) -> head
+    | (_, head) when List.length head = pos -> head
+    | _ ->
+        let (_, x) = arr |> Array.groupBy (fun x -> List.item pos x) |> Array.sortBy (fun (x, _) -> x) |> Array.rev |> Array.maxBy (fun (_, x) -> Array.length x)
+        groupAndPickMax (pos+1) x
+
+let rec groupAndPickMin pos arr =
+    match (Array.length arr, Array.head arr) with
+    | (1, head) -> head
+    | (_, head) when List.length head = pos -> head
+    | _ ->
+        let (_, x) = arr |> Array.groupBy (fun x -> List.item pos x) |> Array.sortBy (fun (x, _) -> x) |> Array.minBy (fun (_, x) -> Array.length x)
+        groupAndPickMin (pos+1) x
+
+let part2 (str:string) =
+    let l = str.Split '\n' |> Array.map (fun x -> Seq.toList x)
+    let res = l |> groupAndPickMax 0 |> List.map bitCalc |> List.rev
+    let res2 = l |> groupAndPickMin 0 |> List.map bitCalc |> List.rev
+    let x = calcBit res 1
+    let y = calcBit res2 1
+    (x,y)
+
+let getPower str = part1 str ||> (*)
+let getLifeSupport str = part2 str ||> (*)
 
 [<Fact>]
 let ``test bit calculator`` () =
@@ -43,7 +67,7 @@ let ``test bit calculator`` () =
 
 [<Fact>]
 let ``part 1 bit extraction`` () =
-    extractBits small |> should equal (22, 9)
+    part1 small |> should equal (22, 9)
 
 [<Fact>]
 let ``part 1 power`` () =
@@ -52,3 +76,23 @@ let ``part 1 power`` () =
 [<Fact>]
 let ``part 1 power big`` () =
     getPower big |> should equal 3549854
+
+[<Fact>]
+let ``test bit calculator part 2`` () =
+    calcBit (['1';'0';'1';'1';'1'] |> List.map bitCalc |> List.rev) 1 |> should equal 23
+
+[<Fact>]
+let ``test groupAndPickMax part 2`` () =
+    small.Split '\n' |> Array.map (fun x -> Seq.toList x) |> groupAndPickMax 0 |> should equal ['1';'0';'1';'1';'1']
+
+[<Fact>]
+let ``part 2 bit extraction`` () =
+    part2 small |> should equal (23, 10)
+
+[<Fact>]
+let ``part 2 power`` () =
+    getLifeSupport small |> should equal 230
+
+[<Fact>]
+let ``part 2 power big`` () =
+    getLifeSupport big |> should equal 3765399
